@@ -169,3 +169,6 @@ Analysis complete. Results appended to hospital_data/reports/analysis_report.txt
    - Log parsing with awk for device statistics
    - Formatted report generation
    - Cumulative analysis with file managment
+
+Below is the link to the track sheet for the group:
+https://docs.google.com/spreadsheets/d/11slmfwdKkCGzYrXhTlwg-v4UFm3RZ-P-XsfFLr4Qr4w/edit?usp=sharing
