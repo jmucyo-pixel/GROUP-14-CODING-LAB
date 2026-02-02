@@ -109,7 +109,8 @@ The script will:
 - Non-disruptive log rotation (creates new empty files)
 - Maintains continuous monitoring capability
 
-Log Format
+
+ Log Format
 
 All log files follow the format:
 
@@ -125,7 +126,32 @@ TIMESTAMP DEVICE_NAME VALUE
 - Bash shell
 - Standard Linux utilities (awk, grep, sort, date, mv, touch)
 
+ Usage Examples
 
+ Archiving Example
+bash
+$ ./archive_logs.sh
+Select log to archive:
+1) Heart Rate
+2) Temperature
+3) Water Usage
+Enter choice (1-3): 1
+
+Archiving heart_rate.log...
+Successfully archived to hospital_data/archived_logs/heart_data_archive/heart_rate_2024-01-24_15:22:10.log
+
+
+ Analysis Example
+bash
+$ ./analyze_logs.sh
+Select log file to analyze:
+1) Heart Rate (heart_rate.log)
+2) Temperature (temperature.log)
+3) Water Usage (water_usage.log)
+Enter choice (1-3): 1
+
+Analyzing Heart Rate logs...
+Analysis complete. Results appended to hospital_data/reports/analysis_report.txt
 
  Learning Objectives Achieved
 
@@ -142,4 +168,4 @@ TIMESTAMP DEVICE_NAME VALUE
 3. Data Analysis with CLI Tools
    - Log parsing with awk for device statistics
    - Formatted report generation
-   - Cumulative analysis file management
+   - Cumulative analysis with file managment
