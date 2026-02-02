@@ -1,38 +1,56 @@
-import time
 import random
-from datetime import datetime
+import time
+import sys
 import os
+from datetime import datetime
 
-# -----------------------------
+# Directory and file configuration
+LOG_DIR = "active_logs"
+LOG_FILE = os.path.join(LOG_DIR, "temperature_log.log")
+PID_FILE = "/tmp/temperature_recorder.pid"
+DEVICES = ["Temp_Recorder_A", "Temp_Recorder_B"]
 
-# COMMENT 1: Ensure the active_logs directory exists
+def ensure_log_dir():
+    if not os.path.exists(LOG_DIR):
+        os.makedirs(LOG_DIR)
 
-# This is where all temperature log files will be stored
-
-os.makedirs("active_logs", exist_ok=True)
-
-# Path to the log file
-
-log_file = "active_logs/temperature.log"
-
-try:
+def log_data():
+    ensure_log_dir()
     while True:
-        # -----------------------------
-        # COMMENT 2: Generate timestamp and simulate a temperature sensor reading
         timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        device_id = f"TEMP_Device_{random.randint(1,3)}"   # Random sensor ID
-        temperature = round(random.uniform(18.0, 38.0), 1) # Random temperature value
+        for device in DEVICES:
+            temp = round(random.uniform(36.0, 39.5), 1)
+            with open(LOG_FILE, "a") as f:
+                f.write(f"{timestamp} {device} {temp}\n")
+        time.sleep(1)
 
-        # -----------------------------
-        # COMMENT 3: Append the simulated reading to the log file
-        with open(log_file, "a") as f:
-            f.write(f"{timestamp} {device_id} {temperature}\n")
+def start():
+    pid = os.fork()
+    if pid > 0:
+        with open(PID_FILE, "w") as f:
+            f.write(str(pid))
+        print(f"Started. PID: {pid}")
+    else:
+        log_data()
 
-        # -----------------------------
-        # COMMENT 4: Wait 2 seconds before generating the next reading
-        time.sleep(2)
+def stop():
+    if os.path.exists(PID_FILE):
+        with open(PID_FILE, "r") as f:
+            pid = int(f.read().strip())
+        os.kill(pid, 9)
+        os.remove(PID_FILE)
+        print("Stopped.")
+    else:
+        print("No running process found.")
 
-# -----------------------------
-# COMMENT 5: Handle user by stopping the script safely
-except KeyboardInterrupt:
-    print("\nTemperature sensor stopped.")
+if __name__ == "__main__":
+    if len(sys.argv) < 2:
+        print("Usage: python3 temperature_recorder.py [start|stop]")
+        sys.exit(1)
+    
+    if sys.argv[1] == "start":
+        start()
+    elif sys.argv[1] == "stop":
+        stop()
+    else:
+        print("Invalid command. Use 'start' or 'stop'.")

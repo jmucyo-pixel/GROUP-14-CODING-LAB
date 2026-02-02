@@ -1,33 +1,56 @@
-import time
 import random
-from datetime import datetime
+import time
+import sys
 import os
+from datetime import datetime
 
-# Ensure the active_logs directory exists
-os.makedirs("active_logs", exist_ok=True)
+# Directory and file configuration
+LOG_DIR = "active_logs"
+LOG_FILE = os.path.join(LOG_DIR, "heart_rate_log.log")
+PID_FILE = "/tmp/heart_rate_monitor.pid"
+DEVICES = ["HeartRate_Monitor_A", "HeartRate_Monitor_B"]
 
-log_file = "active_logs/heart_rate.log"
+def ensure_log_dir():
+    if not os.path.exists(LOG_DIR):
+        os.makedirs(LOG_DIR)
 
-print("Heart rate monitoring started... (CTRL+C to stop)")
-
-try:
+def log_data():
+    ensure_log_dir()
     while True:
-        # -----------------------------
-        # COMMENT 2: Generate timestamp and simulate a heart rate device reading
         timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        device_id = f"HR_Device_{random.randint(1,3)}"  # Random device ID
-        heart_rate = random.randint(60, 100)           # Random heart rate value
+        for device in DEVICES:
+            heart_rate = random.randint(60, 100)
+            with open(LOG_FILE, "a") as f:
+                f.write(f"{timestamp} {device} {heart_rate}\n")
+        time.sleep(1)
 
-        # -----------------------------
-        # COMMENT 3: Append the simulated reading to the log file
-        with open(log_file, "a") as f:
-            f.write(f"{timestamp} {device_id} {heart_rate}\n")
+def start():
+    pid = os.fork()
+    if pid > 0:
+        with open(PID_FILE, "w") as f:
+            f.write(str(pid))
+        print(f"Started. PID: {pid}")
+    else:
+        log_data()
 
-        # -----------------------------
-        # COMMENT 4: Wait 2 seconds before the next reading
-        time.sleep(2)
+def stop():
+    if os.path.exists(PID_FILE):
+        with open(PID_FILE, "r") as f:
+            pid = int(f.read().strip())
+        os.kill(pid, 9)
+        os.remove(PID_FILE)
+        print("Stopped.")
+    else:
+        print("No running process found.")
 
-# -----------------------------
-# COMMENT 5: Handle user by stopping the script gracefully and rightfully
-except KeyboardInterrupt:
-    print("\nHeart rate monitoring stopped.")
+if __name__ == "__main__":
+    if len(sys.argv) < 2:
+        print("Usage: python3 heart_rate_monitor.py [start|stop]")
+        sys.exit(1)
+    
+    if sys.argv[1] == "start":
+        start()
+    elif sys.argv[1] == "stop":
+        stop()
+    else:
+        print("Invalid command. Use 'start' or 'stop'.")

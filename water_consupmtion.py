@@ -1,36 +1,55 @@
-import time
 import random
-from datetime import datetime
+import time
+import sys
 import os
+from datetime import datetime
 
-# -----------------------------
-# COMMENT 1: Ensure the active_logs directory exists
-# All water usage logs will be stored here
-os.makedirs("active_logs", exist_ok=True)
+# Directory and file configuration
+LOG_DIR = "active_logs"
+LOG_FILE = os.path.join(LOG_DIR,"water_usage_log.log")
+PID_FILE = "/tmp/water_consumption.pid"
+DEVICE = "Water_Consumption_Meter"
 
-# Path to the log file
-log_file = "active_logs/water_usage.log"
+def ensure_log_dir():
+    if not os.path.exists(LOG_DIR):
+        os.makedirs(LOG_DIR)
 
-print("Water meter monitoring started... (CTRL+C to stop)")
-
-try:
+def log_data():
+    ensure_log_dir()
     while True:
-        # -----------------------------
-        # COMMENT 2: Generate timestamp and simulate a water meter reading
         timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        device_id = f"WATER_Device_{random.randint(1,3)}"  # Random water meter ID
-        water_used = round(random.uniform(0.5, 5.0), 2)    # Random water usage in liters
+        usage = random.randint(1, 10)
+        with open(LOG_FILE, "a") as f:
+            f.write(f"{timestamp} {DEVICE} {usage}\n")
+        time.sleep(1)
 
-        # -----------------------------
-        # COMMENT 3: Append the simulated reading to the log file
-        with open(log_file, "a") as f:
-            f.write(f"{timestamp} {device_id} {water_used}\n")
+def start():
+    pid = os.fork()
+    if pid > 0:
+        with open(PID_FILE, "w") as f:
+            f.write(str(pid))
+        print(f"Started. PID: {pid}")
+    else:
+        log_data()
 
-        # -----------------------------
-        # COMMENT 4: Wait 2 seconds before the next reading
-        time.sleep(2)
+def stop():
+    if os.path.exists(PID_FILE):
+        with open(PID_FILE, "r") as f:
+            pid = int(f.read().strip())
+        os.kill(pid, 9)
+        os.remove(PID_FILE)
+        print("Stopped.")
+    else:
+        print("No running process found.")
 
-# -----------------------------
-# COMMENT 5: Handle user stopping the script safely
-except KeyboardInterrupt:
-    print("\nWater meter monitoring stopped.")
+if __name__ == "__main__":
+    if len(sys.argv) < 2:
+        print("Usage: python3 water_consumption.py [start|stop]")
+        sys.exit(1)
+    
+    if sys.argv[1] == "start":
+        start()
+    elif sys.argv[1] == "stop":
+        stop()
+    else:
+        print("Invalid command. Use 'start' or 'stop'.")
