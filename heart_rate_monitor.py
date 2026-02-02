@@ -28,6 +28,6 @@ try:
         time.sleep(2)
 
 # -----------------------------
-# COMMENT 5: Handle user stopping the script gracefully and rightfully
+# COMMENT 5: Handle user by stopping the script gracefully and rightfully
 except KeyboardInterrupt:
     print("\nHeart rate monitoring stopped.")
