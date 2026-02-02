@@ -6,7 +6,7 @@ An automated log management system for collecting real-time patient health metri
 
  Project Structure
 
-
+'''
 hospital_data/
 ├── active_logs/                 # Current log files
 │   ├── heart_rate.log           # Format: TIMESTAMP DEVICE VALUE
@@ -18,7 +18,7 @@ hospital_data/
 │   └── water_usage_data_archive/
 └── reports/
     └── analysis_report.txt
-
+'''
 
  Components
 
