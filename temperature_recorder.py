@@ -33,6 +33,6 @@ try:
         time.sleep(2)
 
 # -----------------------------
-# COMMENT 5: Handle user stopping the script safely
+# COMMENT 5: Handle user by stopping the script safely
 except KeyboardInterrupt:
     print("\nTemperature sensor stopped.")
